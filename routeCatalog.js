@@ -109,7 +109,7 @@ function discoverFamily(route, catalog) {
   if (knownBase || !possibleBase) {
     for (const entry of byName.values()) {
       if (baseOfX(entry.route)?.toUpperCase() === main.toUpperCase() &&
-          publicRouteCode(entry.route) !== '517X') {
+        publicRouteCode(entry.route) !== '517X') {
         supplementaryRoutes.push(entry.route);
       }
     }
@@ -183,7 +183,7 @@ function find34Bangkhen(catalog) {
     const compact = name.replace(/\s+/g, '');
     return /^1-3\(34\)$/i.test(compact) ? 0 : /34เสริม/.test(compact) ? 1 : 2;
   };
-  return candidates.sort((a,b) => rank(a.route)-rank(b.route))[0]?.route || null;
+  return candidates.sort((a, b) => rank(a.route) - rank(b.route))[0]?.route || null;
 }
 
 function is34Family(route) {
@@ -224,6 +224,37 @@ function resolvePublishedRoute(input, catalog) {
   return { route: requested };
 }
 
+// New function
+function resolvePublishedRoute(input, catalog) {
+  const requested = String(input || '').trim();
+  const key = requested.toUpperCase();
+
+  if (!(catalog instanceof Map)) {
+    return { route: requested };
+  }
+
+  const exact = catalog.get(key);
+  if (exact) {
+    return { route: exact.route };
+  }
+
+  const matches = [...catalog.values()].filter(
+    entry => publicRouteCode(entry.route) === key
+  );
+
+  if (matches.length === 1) {
+    return { route: matches[0].route };
+  }
+
+  if (matches.length > 1) {
+    return {
+      route: requested,
+      ambiguous: matches.map(entry => entry.route)
+    };
+  }
+
+  return { route: requested };
+}
 
 module.exports = {
   decodeEntities,
@@ -239,4 +270,3 @@ module.exports = {
   find34Bangkhen,
   is34Family
 };
-
