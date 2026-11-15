@@ -575,7 +575,7 @@ async function load() {
     return;
   }
   try {
-    const API_BASE = 'https://wrote-virtue-sometimes-departments.trycloudflare.com';
+    const API_BASE = 'https://refurbished-seek-fare-stockholm.trycloudflare.com';
 
     const response = await fetch(
       `${API_BASE}/api/schedule?route=${encodeURIComponent(route)}`,
