@@ -6,7 +6,7 @@ const path = require('node:path');
 const os = require('node:os');
 const { getRouteData, getRouteMeta, getRouteCatalog } = require('./getSchedulePlan');
 const { directionFromResponse, mergeDirections, markBangkhen, markAVariant, correctPublishedTerminus, buildCircularBoards } = require('./timetableLogic');
-const { discoverFamily, discoverCircularPair, circularSignature, baseOfX, publicRouteCode, find34Bangkhen, is34Family } = require('./routeCatalog');
+const { discoverFamily, discoverCircularPair, circularSignature, baseOfX, publicRouteCode, resolvePublishedRoute, find34Bangkhen, is34Family } = require('./routeCatalog');
 
 const PORT = Number(process.env.PORT) || 3000;
 const PUBLIC = path.join(__dirname, 'public');
@@ -66,9 +66,9 @@ async function fetchLine(routeName, meta, supplementary = false) {
     meta?.start && meta?.destination
       ? Promise.resolve(meta)
       : getRouteMeta(routeName).catch(err => {
-        console.warn('Route name metadata unavailable for', routeName, err.message);
-        return { start: '-', destination: '-' };
-      })
+          console.warn('Route name metadata unavailable for', routeName, err.message);
+          return { start: '-', destination: '-' };
+        })
   ]);
   return {
     fetchedAt: new Date().toISOString(),
@@ -87,6 +87,7 @@ async function handleRoutes(res) {
     const pair = discoverCircularPair(entry.route, catalog);
     return {
       ...entry,
+      publicNumber: publicRouteCode(entry.route),
       supplementary: !!baseOfX(entry.route),
       baseRoute: baseOfX(entry.route),
       circularSide: pair ? circularSignature(entry.route)?.side : null,
@@ -110,7 +111,20 @@ async function handleSchedule(res, requestedRoute) {
 
   try {
     const catalog = await loadCatalog();
-    const circular = discoverCircularPair(route, catalog);
+    const resolution = resolvePublishedRoute(route, catalog);
+    if (resolution.ambiguous) {
+      sendJson(res, 409, {
+        error: `Route ${route} matches multiple TSB routes. Please choose the full route ID.`,
+        candidates: resolution.ambiguous
+      });
+      return;
+    }
+    if (!catalog && /^[0-9]+[A-Z]*$/i.test(route)) {
+      sendJson(res, 503, { error: 'The TSB route list is unavailable. Try again later or enter a full route ID.' });
+      return;
+    }
+    const selectedRoute = resolution.route;
+    const circular = discoverCircularPair(selectedRoute, catalog);
     if (circular) {
       // Selecting either L or R gives the exact same two-column page.
       // Data for both services comes from their own get_route.php responses.
@@ -144,15 +158,15 @@ async function handleSchedule(res, requestedRoute) {
       // The 34 / 34X / 1-3(34) service group is a deliberate exception to
       // suffix-based X matching: 1-3 has a different route ID but shares the
       // Hua Lamphong departure terminal with route 34.
-      family = discoverFamily(is34Family(route) && catalog.has('34') ? '34' : route, catalog);
+      family = discoverFamily(is34Family(selectedRoute) && catalog.has('34') ? '34' : selectedRoute, catalog);
     } else {
       // A failed catalog request never authorizes made-up extra services.
       // The requested route itself remains available through get_route.php.
       family = {
-        primary: route,
+        primary: selectedRoute,
         supplementaryRoutes: [],
         variantRoutes: [],
-        standaloneX: !!baseOfX(route),
+        standaloneX: !!baseOfX(selectedRoute),
         catalogMatched: false
       };
     }
@@ -183,11 +197,11 @@ async function handleSchedule(res, requestedRoute) {
       ? find34Bangkhen(catalog) : null;
     const bangkhenPromise = bangkhenRoute
       ? fetchLine(bangkhenRoute, catalog.get(bangkhenRoute.toUpperCase()), false)
-        .then(line => ({ name: bangkhenRoute, line: markBangkhen(line) }))
-        .catch(err => {
-          console.warn('34 Bangkhen service failed to load:', bangkhenRoute, err.message);
-          return null;
-        })
+          .then(line => ({ name: bangkhenRoute, line: markBangkhen(line) }))
+          .catch(err => {
+            console.warn('34 Bangkhen service failed to load:', bangkhenRoute, err.message);
+            return null;
+          })
       : Promise.resolve(null);
 
     const [mainSource, supplementResults, bangkhen, variantResults] = await Promise.all([
@@ -236,21 +250,16 @@ async function handleSchedule(res, requestedRoute) {
 }
 
 const server = http.createServer(async (req, res) => {
-
-  // Allow GitHub Pages to access the API
-  res.setHeader(
-    'Access-Control-Allow-Origin',
-    'https://bibi166221.github.io'
-  );
+  // The static GitHub Pages frontend needs permission to read this JSON API.
+  // Do not allow arbitrary origins.
+  res.setHeader('Access-Control-Allow-Origin', 'https://bibi166221.github.io');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
     res.end();
     return;
   }
-
   let url;
   try { url = new URL(req.url, 'http://localhost'); }
   catch { sendJson(res, 400, { error: 'Invalid URL' }); return; }
