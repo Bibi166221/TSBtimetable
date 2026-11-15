@@ -4,11 +4,11 @@ const $ = (id) => document.getElementById(id);
 let route = '1-4(39)';
 let loading = false;
 let requestToken = 0;
-const isPreview = location.protocol === 'file:' || ['5500','5501'].includes(location.port) || /\/public\/?(?:index\.html)?$/.test(location.pathname) || new URLSearchParams(location.search).has('demo');
+const isPreview = location.protocol === 'file:' || ['5500', '5501'].includes(location.port) || /\/public\/?(?:index\.html)?$/.test(location.pathname) || new URLSearchParams(location.search).has('demo');
 
 // Static design-preview times: intentionally NOT a substitute for the API.
-const PREVIEW_BACK = ['05:12','05:33','05:51','06:00','06:07','06:15','06:28','06:39','06:48','06:56','07:04','07:14','07:26','07:36','07:49','07:58','08:10','08:21','08:32','08:41','08:52','09:04','09:16','09:26','09:38','09:50','10:08','10:22','10:37','10:49','11:00','11:12','11:29','11:44','12:00','12:18','12:34','12:50','13:05','13:21','13:37','13:52','14:10','14:30','14:48','15:02','15:18','15:34','15:51','16:09','16:28','16:46','17:05','17:22','17:41','18:00','18:22','18:44','19:02','19:24','19:51','20:12','20:38','21:04','21:31','22:00','23:10','00:08'];
-const PREVIEW_GO = ['05:08','05:29','05:50','06:03','06:14','06:25','06:36','06:47','06:58','07:05','07:13','07:23','07:33','07:43','07:53','08:00','08:12','08:24','08:35','08:46','08:57','09:06','09:19','09:33','09:46','10:00','10:13','10:27','10:40','10:54','11:05','11:19','11:32','11:45','12:00','12:14','12:28','12:42','12:56','13:09','13:22','13:35','13:49','14:04','14:18','14:32','14:46','15:01','15:15','15:29','15:43','15:57','16:11','16:25','16:40','16:54','17:08','17:22','17:38','17:54','18:10','18:26','18:42','18:58','19:15','19:32','19:49','20:12','20:35','20:58','21:20','21:43','22:05','23:15','00:12'];
+const PREVIEW_BACK = ['05:12', '05:33', '05:51', '06:00', '06:07', '06:15', '06:28', '06:39', '06:48', '06:56', '07:04', '07:14', '07:26', '07:36', '07:49', '07:58', '08:10', '08:21', '08:32', '08:41', '08:52', '09:04', '09:16', '09:26', '09:38', '09:50', '10:08', '10:22', '10:37', '10:49', '11:00', '11:12', '11:29', '11:44', '12:00', '12:18', '12:34', '12:50', '13:05', '13:21', '13:37', '13:52', '14:10', '14:30', '14:48', '15:02', '15:18', '15:34', '15:51', '16:09', '16:28', '16:46', '17:05', '17:22', '17:41', '18:00', '18:22', '18:44', '19:02', '19:24', '19:51', '20:12', '20:38', '21:04', '21:31', '22:00', '23:10', '00:08'];
+const PREVIEW_GO = ['05:08', '05:29', '05:50', '06:03', '06:14', '06:25', '06:36', '06:47', '06:58', '07:05', '07:13', '07:23', '07:33', '07:43', '07:53', '08:00', '08:12', '08:24', '08:35', '08:46', '08:57', '09:06', '09:19', '09:33', '09:46', '10:00', '10:13', '10:27', '10:40', '10:54', '11:05', '11:19', '11:32', '11:45', '12:00', '12:14', '12:28', '12:42', '12:56', '13:09', '13:22', '13:35', '13:49', '14:04', '14:18', '14:32', '14:46', '15:01', '15:15', '15:29', '15:43', '15:57', '16:11', '16:25', '16:40', '16:54', '17:08', '17:22', '17:38', '17:54', '18:10', '18:26', '18:42', '18:58', '19:15', '19:32', '19:49', '20:12', '20:35', '20:58', '21:20', '21:43', '22:05', '23:15', '00:12'];
 
 const ServiceDay = window.TSBServiceDay;
 
@@ -330,9 +330,9 @@ function resetBoard() {
   $('goJumpLabel').textContent = 'ขาไป';
   $('backJumpLabel').textContent = 'ขากลับ';
   $('circularNote').hidden = true;
-  for (const id of ['goOrigin','goDestination','backOrigin','backDestination']) setStation(id, null);
-  for (const id of ['goRouteKey','backRouteKey']) { $(id).hidden = true; $(id).replaceChildren(); }
-  for (const id of ['goFirstStopNote','backFirstStopNote']) $(id).replaceChildren();
+  for (const id of ['goOrigin', 'goDestination', 'backOrigin', 'backDestination']) setStation(id, null);
+  for (const id of ['goRouteKey', 'backRouteKey']) { $(id).hidden = true; $(id).replaceChildren(); }
+  for (const id of ['goFirstStopNote', 'backFirstStopNote']) $(id).replaceChildren();
   $('serviceCaution').hidden = true;
   $('endpointCorrectionNote').hidden = true;
   renderTimes($('goBody'), []);
@@ -349,15 +349,15 @@ function renderExtraPanel(data, supplementRoute) {
   panel.classList.add(circular ? 'lr-extra-panel' : bangkhen ? 'bangkhen-panel' : aVariant ? 'variant-panel' : 'x-panel');
   panel.setAttribute('aria-label', circular ? `เที่ยวรถเพิ่มเติมสาย ${data.circularSide}`
     : bangkhen ? 'เที่ยวรถออกจากบางเขน'
-    : aVariant ? 'ตารางเวลาสาย A จากต้นทางอื่น' : 'เส้นทางตัดเสริม');
+      : aVariant ? 'ตารางเวลาสาย A จากต้นทางอื่น' : 'เส้นทางตัดเสริม');
   const header = document.createElement('header');
   header.className = 'panel-header';
   const heading = document.createElement('div');
   heading.className = 'panel-heading-top';
   heading.textContent = circular ? (data.panelTitle || `สาย ${data.circularSide}`)
     : bangkhen ? `บางเขน · ${data.departures?.[0]?.route || '1-3(34)'}`
-    : aVariant ? `สาย ${data.departures?.[0]?.displayLabel || data.departures?.[0]?.route || 'A'}`
-    : `เส้นทางตัดเสริม (${data.departures?.[0]?.route || supplementRoute})`;
+      : aVariant ? `สาย ${data.departures?.[0]?.displayLabel || data.departures?.[0]?.route || 'A'}`
+        : `เส้นทางตัดเสริม (${data.departures?.[0]?.route || supplementRoute})`;
   const direction = document.createElement('div');
   direction.className = 'route-direction';
   const originName = document.createElement('strong');
@@ -396,7 +396,7 @@ function renderExtras(extraPanels, supplementaryRoute) {
   $('supplementHeading').textContent = hasCircular ? 'ตารางเวลาเที่ยวเพิ่มเติมของสาย L / R'
     : hasBangkhen || hasAVariant ? 'ตารางเวลาออกจากต้นทางอื่น' : 'เส้นทางตัดเสริม';
   // Show Bangkhen departures before the red X-route Kor Por Aor panel.
-  const orderedPanels = [...extraPanels].sort((a,b) =>
+  const orderedPanels = [...extraPanels].sort((a, b) =>
     Number(!!b.departures?.some(d => d.serviceType === 'bangkhen')) -
     Number(!!a.departures?.some(d => d.serviceType === 'bangkhen')));
   let hasOvernight = false;
@@ -409,8 +409,10 @@ function renderExtras(extraPanels, supplementaryRoute) {
 }
 
 function sampleTrips(times, routeName, supplementary, origin, destination, serviceType = '') {
-  return times.map(time => ({ time, route: routeName, supplementary, origin, destination, serviceType,
-    firstStop: origin, firstStopSource: 'preview' }));
+  return times.map(time => ({
+    time, route: routeName, supplementary, origin, destination, serviceType,
+    firstStop: origin, firstStopSource: 'preview'
+  }));
 }
 function previewData() {
   const routeCode = route.match(/\(([^()]+)\)\s*$/)?.[1]?.toUpperCase() || route.toUpperCase();
@@ -420,10 +422,14 @@ function previewData() {
     return {
       route: l, displayTitle: '147L / 147R', requestedRoute: route,
       circularPair: { left: l, right: r, publicLeft: '147L', publicRight: '147R' },
-      go: { route:l, origin, destination:opposite, firstStop:origin,
-        departures:sampleTrips(PREVIEW_GO, l, false, origin, opposite) },
-      back: { route:r, origin:opposite, destination:origin, firstStop:opposite,
-        departures:sampleTrips(PREVIEW_BACK, r, false, opposite, origin) },
+      go: {
+        route: l, origin, destination: opposite, firstStop: origin,
+        departures: sampleTrips(PREVIEW_GO, l, false, origin, opposite)
+      },
+      back: {
+        route: r, origin: opposite, destination: origin, firstStop: opposite,
+        departures: sampleTrips(PREVIEW_BACK, r, false, opposite, origin)
+      },
       extraPanels: []
     };
   }
@@ -441,14 +447,20 @@ function previewData() {
     });
     return {
       route: main, variantRoutes: [variant],
-      go: { origin, destination, departures: [
-        ...sampleTrips(PREVIEW_GO, main, false, origin, destination),
-        blueTrip('06:17', origin, alternativeDestination), blueTrip('07:37', origin, alternativeDestination)
-      ]},
-      back: { origin: destination, destination: origin,
-        departures: sampleTrips(PREVIEW_BACK, main, false, destination, origin) },
-      extraPanels: [{ origin: alternativeDestination, destination: origin,
-        departures: [blueTrip('06:32', alternativeDestination, origin), blueTrip('07:52', alternativeDestination, origin)] }]
+      go: {
+        origin, destination, departures: [
+          ...sampleTrips(PREVIEW_GO, main, false, origin, destination),
+          blueTrip('06:17', origin, alternativeDestination), blueTrip('07:37', origin, alternativeDestination)
+        ]
+      },
+      back: {
+        origin: destination, destination: origin,
+        departures: sampleTrips(PREVIEW_BACK, main, false, destination, origin)
+      },
+      extraPanels: [{
+        origin: alternativeDestination, destination: origin,
+        departures: [blueTrip('06:32', alternativeDestination, origin), blueTrip('07:52', alternativeDestination, origin)]
+      }]
     };
   }
   if (routeCode === '517' || routeCode === '517X') {
@@ -460,8 +472,10 @@ function previewData() {
     return {
       route: name, supplementaryRoutes: [], variantRoutes: [],
       go: { origin, destination, departures: sampleTrips(PREVIEW_GO, name, isX, origin, destination) },
-      back: { origin: destination, destination: origin,
-        departures: sampleTrips(PREVIEW_BACK, name, isX, destination, origin) },
+      back: {
+        origin: destination, destination: origin,
+        departures: sampleTrips(PREVIEW_BACK, name, isX, destination, origin)
+      },
       extraPanels: []
     };
   }
@@ -474,19 +488,19 @@ function previewData() {
         origin: rangsit, destination: hua,
         departures: [
           ...sampleTrips(PREVIEW_GO, '34', false, rangsit, hua),
-          ...sampleTrips(['05:18','06:20','07:15','08:40','17:30'], '34X', true, rangsit, kor)
+          ...sampleTrips(['05:18', '06:20', '07:15', '08:40', '17:30'], '34X', true, rangsit, kor)
         ]
       },
       back: {
         origin: hua, destination: rangsit,
         departures: [
           ...sampleTrips(PREVIEW_BACK, '34', false, hua, rangsit),
-          ...sampleTrips(['05:09','06:22','07:36','08:10','18:45'], '1-3(34)', false, hua, bangkhen, 'bangkhen')
+          ...sampleTrips(['05:09', '06:22', '07:36', '08:10', '18:45'], '1-3(34)', false, hua, bangkhen, 'bangkhen')
         ]
       },
       extraPanels: [
-        { origin: bangkhen, destination: hua, departures: sampleTrips(['05:05','06:08','07:24','08:35','18:05'], '1-3(34)', false, bangkhen, hua, 'bangkhen') },
-        { origin: kor, destination: rangsit, departures: sampleTrips(['05:30','06:41','07:52','08:45','18:24'], '34X', true, kor, rangsit) }
+        { origin: bangkhen, destination: hua, departures: sampleTrips(['05:05', '06:08', '07:24', '08:35', '18:05'], '1-3(34)', false, bangkhen, hua, 'bangkhen') },
+        { origin: kor, destination: rangsit, departures: sampleTrips(['05:30', '06:41', '07:52', '08:45', '18:24'], '34X', true, kor, rangsit) }
       ]
     };
   }
@@ -497,14 +511,15 @@ function previewData() {
       route: '4-8(35)', supplementaryRoute: '4-8X(35X)',
       go: {
         origin: a, destination: b,
-        departures: [...sampleTrips(PREVIEW_GO, '4-8(35)', false, a, b), ...sampleTrips(['06:10','07:25','08:45','23:20'], '4-8X(35X)', true, a, c)]
+        departures: [...sampleTrips(PREVIEW_GO, '4-8(35)', false, a, b), ...sampleTrips(['06:10', '07:25', '08:45', '23:20'], '4-8X(35X)', true, a, c)]
       },
       back: { origin: b, destination: a, departures: sampleTrips(PREVIEW_BACK, '4-8(35)', false, b, a) },
-      extraPanels: [{ origin: c, destination: a, departures: sampleTrips(['06:15','07:40','08:50'], '4-8X(35X)', true, c, a) }]
+      extraPanels: [{ origin: c, destination: a, departures: sampleTrips(['06:15', '07:40', '08:50'], '4-8X(35X)', true, c, a) }]
     };
   }
   const a = 'มหาวิทยาลัยธรรมศาสตร์ (ศูนย์รังสิต)', b = 'บางเขน';
-  return { route, supplementaryRoute: null,
+  return {
+    route, supplementaryRoute: null,
     go: { origin: a, destination: b, departures: sampleTrips(PREVIEW_GO, route, false, a, b) },
     back: { origin: b, destination: a, departures: sampleTrips(PREVIEW_BACK, route, false, b, a) },
     extraPanels: []
@@ -560,7 +575,12 @@ async function load() {
     return;
   }
   try {
-    const response = await fetch(`/api/schedule?route=${encodeURIComponent(route)}`, { cache: 'no-store' });
+    const API_BASE = 'https://childhood-feeds-headed-dirt.trycloudflare.com';
+
+    const response = await fetch(
+      `${API_BASE}/api/schedule?route=${encodeURIComponent(route)}`,
+      { cache: 'no-store' }
+    );
     const result = await response.json();
     if (!response.ok) throw new Error(result.detail || result.error || 'Request failed');
     if (token !== requestToken) return;
