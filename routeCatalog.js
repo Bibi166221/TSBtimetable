@@ -191,4 +191,52 @@ function is34Family(route) {
   return /^34x?$/i.test(value) || is34Bangkhen(value);
 }
 
-module.exports = { decodeEntities, parseCatalog, baseOfX, publicRouteCode, findPublishedByNumber, discoverFamily, circularSignature, discoverCircularPair, is34Bangkhen, find34Bangkhen, is34Family };
+function resolvePublishedRoute(input, catalog) {
+  const requested = String(input || '').trim();
+  const key = requested.toUpperCase();
+
+  if (!(catalog instanceof Map)) {
+    return { route: requested };
+  }
+
+  // Exact API route ID has first priority.
+  const exact = catalog.get(key);
+  if (exact) {
+    return { route: exact.route };
+  }
+
+  // Search using familiar numbers: 84, 113, 555, etc.
+  const matches = [...catalog.values()].filter(
+    entry => publicRouteCode(entry.route) === key
+  );
+
+  if (matches.length === 1) {
+    return { route: matches[0].route };
+  }
+
+  if (matches.length > 1) {
+    return {
+      route: requested,
+      ambiguous: matches.map(entry => entry.route)
+    };
+  }
+
+  return { route: requested };
+}
+
+
+module.exports = {
+  decodeEntities,
+  parseCatalog,
+  baseOfX,
+  publicRouteCode,
+  findPublishedByNumber,
+  resolvePublishedRoute,
+  discoverFamily,
+  circularSignature,
+  discoverCircularPair,
+  is34Bangkhen,
+  find34Bangkhen,
+  is34Family
+};
+
