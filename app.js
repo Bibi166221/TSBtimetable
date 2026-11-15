@@ -579,7 +579,7 @@ async function load() {
       window.location.hostname === 'localhost' ||
         window.location.hostname === '127.0.0.1'
         ? ''
-        : 'https://software-ruled-title-figure.trycloudflare.com ';
+        : 'https://tsbtimetable.onrender.com';
 
     const response = await fetch(
       `${API_BASE}/api/schedule?route=${encodeURIComponent(route)}`,
